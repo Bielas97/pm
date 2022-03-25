@@ -1,0 +1,24 @@
+mutation UpdateBasicFields($projectId: String!,
+    $shortname: String,
+    $fullname: String,
+    $startDate: String,
+    $endDate: String,
+    $leaderId: String
+)  {
+    updateProject(projectId: $projectId, request: {
+        basicFieldsUpdate: {
+            shortName: $shortname,
+            fullName: $fullname,
+            startDate: $startDate,
+            endDate: $endDate,
+            leaderId: $leaderId
+        }
+    }) {
+        id,
+        fullName,
+        shortName,
+        startDate,
+        endDate,
+        leaderId
+    }
+}

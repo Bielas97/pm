@@ -1,0 +1,22 @@
+query QueriedProjects(
+    $projectId: String,
+    $nameWildcard: String,
+    $leaderIdWildcard: String,
+    $startDate: String,
+    $endDate: String
+) {
+    findProjects(query: {
+        id: $projectId,
+        nameWildcard: $nameWildcard,
+        leaderIdWildcard: $leaderIdWildcard,
+        startDate: $startDate,
+        endDate: $endDate
+    }){
+        id,
+        fullName,
+        shortName,
+        startDate,
+        endDate,
+        leaderId
+    }
+}

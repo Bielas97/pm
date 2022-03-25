@@ -1,0 +1,12 @@
+graphql:
+  servlet:
+    mapping: /api
+
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://admin:pass@localhost:27017/test-db?authSource=admin
+
+mongock:
+  change-logs-scan-package: com.jbs.pm.adapter.output.db.changelogs

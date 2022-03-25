@@ -1,0 +1,45 @@
+type Project {
+    id: ID!
+    fullName: String!
+    shortName: String!
+    startDate: String!
+    endDate: String!
+    leaderId: String
+}
+
+input ProjectQuery {
+	id: String
+	nameWildcard: String
+	leaderIdWildcard: String
+	startDate: String
+	endDate: String
+}
+
+type Query {
+	findProjects(query: ProjectQuery): [Project]!
+    findAllProjects: [Project]!
+}
+
+input CreateProjectRequest {
+	fullName: String!
+	shortName: String
+	startDate: String!
+	endDate: String!
+}
+
+input UpdateProjectRequest {
+	basicFieldsUpdate: BasicFieldsUpdate
+}
+
+input BasicFieldsUpdate {
+	fullName: String
+	shortName: String
+	startDate: String
+	endDate: String
+	leaderId: String
+}
+
+type Mutation {
+    createProject(request: CreateProjectRequest!): Project!
+    updateProject(projectId: String!, request: UpdateProjectRequest!): Project!
+}

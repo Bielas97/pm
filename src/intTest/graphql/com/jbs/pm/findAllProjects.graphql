@@ -1,0 +1,10 @@
+query AllProjects{
+    findAllProjects{
+        id,
+        fullName,
+        shortName,
+        startDate,
+        endDate,
+        leaderId
+    }
+}

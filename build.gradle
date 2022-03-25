@@ -1,0 +1,143 @@
+plugins {
+    id 'org.springframework.boot' version '2.6.4'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+    id 'pmd'
+    id 'jacoco'
+    id 'com.diffplug.spotless' version "6.3.0"
+    id "com.apollographql.apollo" version "2.5.9"
+}
+
+group = 'com.jbs'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+sourceSets {
+    intTest {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+        compileClasspath += sourceSets.test.output
+        runtimeClasspath += sourceSets.test.output
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+        intTestImplementation.extendsFrom implementation
+        intTestRuntimeOnly.extendsFrom runtimeOnly
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url('http://waw.dscloud.biz:8069/repository/maven-public')
+        allowInsecureProtocol = true
+    }
+}
+
+dependencies {
+    implementation 'org.testng:testng:7.1.0'
+    def lombokVersion = '1.18.22'
+    def springBootVersion = '2.6.4'
+    def mockitoVersion = "4.+"
+    def testContainersVersion = "1.16.3"
+
+    implementation("org.springframework.boot:spring-boot-starter:$springBootVersion")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
+    implementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
+
+    // Graphql
+    implementation 'com.graphql-java:graphql-spring-boot-starter:5.0.2'
+    implementation 'com.graphql-java:graphql-java-tools:5.2.4'
+
+
+    // aegon utils
+    implementation('com.aegon.util.lang:lang:1.0-SNAPSHOT')
+    compileOnly 'com.aegon.util.components:components:1.0-SNAPSHOT'
+    testImplementation 'com.aegon.util.components:components:1.0-SNAPSHOT'
+    intTestImplementation 'com.aegon.util.components:components:1.0-SNAPSHOT'
+
+    // Project Lombok
+    compileOnly("org.projectlombok:lombok:$lombokVersion")
+    annotationProcessor("org.projectlombok:lombok:$lombokVersion")
+    testCompileOnly("org.projectlombok:lombok:$lombokVersion")
+    testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")
+    intTestCompileOnly("org.projectlombok:lombok:$lombokVersion")
+    intTestAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")
+
+    // Junit
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    intTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    intTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+
+    // Unit Tests
+    testImplementation("org.mockito:mockito-core:$mockitoVersion")
+    testImplementation("org.mockito:mockito-junit-jupiter:$mockitoVersion")
+    testImplementation("com.tngtech.archunit:archunit-junit5:0.23.1")
+
+    // Mongo
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb:$springBootVersion")
+    compileOnly "com.github.cloudyrock.mongock:mongock-bom:4.3.8"
+    compileOnly 'com.github.cloudyrock.mongock:mongock-spring-v5:4.3.8'
+    compileOnly 'com.github.cloudyrock.mongock:mongodb-springdata-v3-driver:4.3.8'
+
+
+    //IntTests
+    intTestImplementation("org.springframework.boot:spring-boot-starter-test")
+    intTestImplementation("org.testcontainers:testcontainers:$testContainersVersion")
+    intTestImplementation("org.testcontainers:junit-jupiter:$testContainersVersion")
+    intTestImplementation("org.testcontainers:mongodb:$testContainersVersion")
+    intTestImplementation 'com.apollographql.apollo:apollo-runtime:2.5.9'
+    intTestImplementation("com.apollographql.apollo:apollo-rx3-support:2.5.9")
+    intTestImplementation "com.github.cloudyrock.mongock:mongock-bom:4.3.8"
+    intTestImplementation 'com.github.cloudyrock.mongock:mongock-spring-v5:4.3.8'
+    intTestImplementation 'com.github.cloudyrock.mongock:mongodb-springdata-v3-driver:4.3.8'
+    intTestImplementation 'com.github.cloudyrock.mongock:mongock-standalone:4.3.8'
+
+}
+
+
+pmd {
+    consoleOutput = true
+    toolVersion = "6.35.0"
+    ruleSets = ["pmd.xml"]
+}
+
+spotless {
+    java {
+        // don't need to set target, it is inferred from java
+        googleJavaFormat('1.13.0').reflowLongStrings()
+        removeUnusedImports()
+    }
+}
+
+tasks.register('integrationTest', Test) {
+    description = 'Runs integration tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.intTest.output.classesDirs
+    classpath = sourceSets.intTest.runtimeClasspath
+    useJUnitPlatform()
+    shouldRunAfter test
+}
+
+check.dependsOn integrationTest
+
+tasks.named('test') {
+    // Use junit platform for unit tests
+    useJUnitPlatform()
+    // coverage report is always generated after tests run
+    finalizedBy("jacocoTestReport", "pmdMain")
+}
+
+tasks.named('jacocoTestReport') {
+    executionData(fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec"))
+    dependsOn tasks.test // tests are required to run before generating the report
+}
+
+tasks.named('compileJava') {
+    dependsOn tasks.spotlessApply
+}
