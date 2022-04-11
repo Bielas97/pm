@@ -18,39 +18,5 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
           check-latest: true
-            #Set up Maven cache
-          #This action allows caching dependencies and build outputs to improve workflow execution time.
-      - name: Cache Maven packages
-        uses: actions/cache@v1
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-      - name: generate settings.xml for Maven Builds
-        uses: s4u/maven-settings-action@v2.5.0
-        with:
-          servers: |
-            [
-              {
-                "id": "nexus-snapshots",
-                "username": "${{ secrets.NEXUS_USER }}",
-                "password": "${{ secrets.NEXUS_PASS }}"
-              },
-              {
-                "id": "nexus-releases",
-                "username": "${{ secrets.NEXUS_USER }}",
-                "password": "${{ secrets.NEXUS_PASS }}"
-              }
-            ]
-          mirrors: |
-            [
-              {
-                "id": "central",
-                "name": "central",
-                "url": "http://waw.dscloud.biz:8069/repository/maven-public/",
-                "mirrorOf": "external:http:*",
-                "blocked": "false"
-              }
-            ]
-      - name: Build with Maven
+      - name: Build with Gradle
         run: sh deploy/build.sh
