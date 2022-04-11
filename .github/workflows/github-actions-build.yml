@@ -16,7 +16,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'adopt'
-          cache: 'maven'
+          cache: 'gradle'
           check-latest: true
             #Set up Maven cache
           #This action allows caching dependencies and build outputs to improve workflow execution time.
